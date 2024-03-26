@@ -36,7 +36,7 @@ class KubernetesParserTest extends KubernetesRecipeTest {
                 cnrm.cloud.google.com/force-destroy: "false"
               labels:
                 label-one: "value-one"
-              name: sample
+              name: samuel ple
             spec:
               bucketPolicyOnly: true
               lifecycleRule:
