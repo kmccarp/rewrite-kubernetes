@@ -179,8 +179,8 @@ public interface K8S {
 
         return jsonPath.find(cursor)
                 .flatMap(found -> {
-                    if (found instanceof Yaml.Mapping) {
-                        return ((Yaml.Mapping) found).getEntries().stream()
+                    if (found instanceof Yaml.Mapping mapping) {
+                        return mapping.getEntries().stream()
                                 .map(o -> {
                                     if (o.getValue() == cursor.getValue()) {
                                         return cursor;
@@ -188,9 +188,9 @@ public interface K8S {
                                     return null;
                                 }).filter(Objects::nonNull)
                                 .findFirst();
-                    } else if (found instanceof List) {
+                    } else if (found instanceof List<?> list) {
                         //noinspection unchecked
-                        return ((List<Object>) found).stream()
+                        return list.stream()
                                 .map(o -> {
                                     Cursor c = cursor;
                                     while (c != null && c.getValue() != o) {
@@ -202,7 +202,7 @@ public interface K8S {
                                 .findFirst();
                     }
 
-                    if (found == cursor.getValue() || (found instanceof Yaml.Mapping.Entry && ((Yaml.Mapping.Entry) found).getValue() == cursor.getValue())) {
+                    if (found == cursor.getValue() || (found instanceof Yaml.Mapping.Entry entry && entry.getValue() == cursor.getValue())) {
                         return Optional.of(cursor);
                     }
 
@@ -339,7 +339,7 @@ public interface K8S {
         }
 
         public static boolean isImageName(Cursor cursor) {
-            return cursor.getPathAsStream(o -> (o instanceof Yaml.Mapping.Entry && "image".equals(((Yaml.Mapping.Entry) o).getKey().getValue()))).findFirst().isPresent();
+            return cursor.getPathAsStream(o -> (o instanceof Yaml.Mapping.Entry e && "image".equals(e.getKey().getValue()))).findFirst().isPresent();
         }
     }
 
@@ -402,7 +402,7 @@ public interface K8S {
         }
 
         public static boolean inExternalIPs(Cursor cursor) {
-            return cursor.getPathAsStream(o -> o instanceof Yaml.Mapping.Entry && "externalIPs".equals(((Yaml.Mapping.Entry) o).getKey().getValue())).findFirst().isPresent();
+            return cursor.getPathAsStream(o -> o instanceof Yaml.Mapping.Entry e && "externalIPs".equals(e.getKey().getValue())).findFirst().isPresent();
         }
     }
 
@@ -423,8 +423,7 @@ public interface K8S {
             Optional<Object> tls =
                     new JsonPathMatcher("$.metadata.annotations['kubernetes.io/ingress.allow-http']").find(cursor);
             return tls.map(o -> {
-                if (o instanceof Yaml.Mapping.Entry) {
-                    Yaml.Mapping.Entry e = (Yaml.Mapping.Entry) o;
+                if (o instanceof Yaml.Mapping.Entry e) {
                     if (e.getValue() instanceof Yaml.Scalar) {
                         return "false".equals(((Yaml.Scalar) e.getValue()).getValue());
                     }

@@ -43,9 +43,9 @@ public class KubernetesResource implements Trait<Yaml.Document> {
         @Override
         protected @Nullable KubernetesResource test(Cursor cursor) {
             Object value = cursor.getValue();
-            if (value instanceof Yaml.Document) {
+            if (value instanceof Yaml.Document document) {
                 return new UpdateKubernetesModel<ExecutionContext>()
-                        .visitNonNull((Yaml.Document) value, new InMemoryExecutionContext(), cursor.getParent())
+                        .visitNonNull(document, new InMemoryExecutionContext(), cursor.getParent())
                         .getMarkers()
                         .findFirst(KubernetesModel.class)
                         .filter(model -> kind == null || kind.equals(model.getKind()))

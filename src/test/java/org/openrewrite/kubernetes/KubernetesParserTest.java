@@ -54,7 +54,7 @@ class KubernetesParserTest extends KubernetesRecipeTest {
         """;
 
         KubernetesModel model = getModel(
-          KubernetesParser.builder().build().parse(manifest).map(Yaml.Documents.class::cast).findFirst().get().getDocuments().get(0));
+          KubernetesParser.builder().build().parse(manifest).map(Yaml.Documents.class::cast).findFirst().get().getDocuments().getFirst());
         assertThat(model.getApiVersion()).isEqualTo("storage.cnrm.cloud.google.com/v1beta1");
         assertThat(model.getKind()).isEqualTo("StorageBucket");
         assertThat(model.getMetadata().getName()).isEqualTo("sample");

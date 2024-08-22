@@ -40,7 +40,7 @@ public final class KubernetesParser extends YamlParser {
     @Override
     public Stream<SourceFile> parseInputs(Iterable<Input> sources, @Nullable Path relativeTo, ExecutionContext ctx) {
         return super.parseInputs(sources, relativeTo, ctx)
-                .map(yaml -> yaml instanceof Yaml.Documents ? updateModel((Yaml.Documents) yaml, ctx) : yaml);
+                .map(yaml -> yaml instanceof Yaml.Documents d ? updateModel(d, ctx) : yaml);
     }
 
     private Yaml.Documents updateModel(Yaml.Documents yaml, ExecutionContext ctx) {

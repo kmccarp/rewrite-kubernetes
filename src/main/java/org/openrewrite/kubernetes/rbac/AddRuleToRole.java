@@ -27,8 +27,8 @@ import org.openrewrite.yaml.search.FindKey;
 import org.openrewrite.yaml.tree.Yaml;
 
 import java.nio.file.FileSystems;
+import java.nio.file.Path;
 import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -117,7 +117,7 @@ public class AddRuleToRole extends Recipe {
                 if (K8S.inKind(rbacResourceType, c) && K8S.Metadata.isMetadata(c)) {
                     K8S.Metadata meta = K8S.asMetadata((Yaml.Mapping) entry.getValue());
                     Yaml.Document document = c.dropParentUntil(org.openrewrite.yaml.tree.Yaml.Document.class::isInstance).getValue();
-                    if (globMatcher.matches(Paths.get(meta.getName())) && isSupportedAPI(document)) {
+                    if (globMatcher.matches(Path.of(meta.getName())) && isSupportedAPI(document)) {
                         if (containsRule(FindKey.find(document, "$.rules[*].*"))) {
                             return entry;
                         }
@@ -141,9 +141,9 @@ public class AddRuleToRole extends Recipe {
             private boolean isSupportedAPI(Yaml.Document document) {
                 Set<Yaml> apiVersion = FindKey.find(document, "$.apiVersion");
                 return apiVersion.size() == 1 &&
-                        apiVersion.toArray()[0] instanceof Yaml.Mapping.Entry &&
+                        apiVersion.toArray()[0] instanceof Yaml.Mapping.Entry e &&
                         ((Yaml.Mapping.Entry) apiVersion.toArray()[0]).getValue() instanceof Yaml.Scalar &&
-                        "rbac.authorization.k8s.io/v1".equals(((Yaml.Scalar) ((Yaml.Mapping.Entry) apiVersion.toArray()[0]).getValue()).getValue());
+                        "rbac.authorization.k8s.io/v1".equals(((Yaml.Scalar) e.getValue()).getValue());
             }
 
             private boolean containsRule(Set<Yaml> rules) {
@@ -219,6 +219,6 @@ public class AddRuleToRole extends Recipe {
                 + (resourceNamesStr != null ? "  resourceNames: " + resourceNamesStr + "\n" : "")
                 + "  verbs: " + verbsStr)
                 .map(Yaml.Documents.class::cast);
-        return ((Yaml.Sequence) docs.findFirst().get().getDocuments().get(0).getBlock()).getEntries().get(0).withPrefix("\n");
+        return ((Yaml.Sequence) docs.findFirst().get().getDocuments().getFirst().getBlock()).getEntries().getFirst().withPrefix("\n");
     }
 }

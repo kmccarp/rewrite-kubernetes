@@ -21,7 +21,10 @@ import lombok.With;
 import org.jspecify.annotations.Nullable;
 import org.openrewrite.yaml.tree.Yaml;
 
-import java.nio.file.*;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -142,14 +145,14 @@ public class ContainerImage {
             if (s1 != null && s1.contains("/")) {
                 String[] parts = s1.split("/");
                 if (parts.length > 1) {
-                    path = Paths.get(parts[0], Arrays.copyOfRange(parts, 1, parts.length - 1));
+                    path = Path.of(parts[0], Arrays.copyOfRange(parts, 1, parts.length - 1));
                 } else {
-                    path = Paths.get(parts[0]);
+                    path = Path.of(parts[0]);
                 }
             } else if (s1 == null) {
-                path = Paths.get("");
+                path = Path.of("");
             } else {
-                path = Paths.get(s1);
+                path = Path.of(s1);
             }
             return pm.matches(path);
         }
